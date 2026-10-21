@@ -1,25 +1,12 @@
 import { router } from '../router.js';
-
-function renderPendingFeature(featureName) {
-  const container = document.querySelector('#app-content');
-  if (!container) return;
-
-  const section = document.createElement('section');
-  section.className = 'empty-state';
-
-  const heading = document.createElement('h1');
-  heading.textContent = `${featureName} module is being integrated`;
-
-  const message = document.createElement('p');
-  message.textContent = 'This area will become available after the assigned feature branch is reviewed and merged.';
-
-  section.append(heading, message);
-  container.replaceChildren(section);
-}
+import { renderApplicationForm } from './applicationForm.js';
+import { renderProjectDetail } from './projectDetail.js';
+import { renderProjectForm } from './projectForm.js';
+import { renderProjectList } from './projectList.js';
 
 export function registerProjectRoutes() {
-  router.register('/projects', () => renderPendingFeature('Project Collaboration'));
-  router.register('/projects/new', () => renderPendingFeature('Project creation'));
-  router.register('/projects/:id/apply/:roleId', () => renderPendingFeature('Project application'));
-  router.register('/projects/:id', () => renderPendingFeature('Project details'));
+  router.register('/projects', () => renderProjectList());
+  router.register('/projects/new', () => renderProjectForm());
+  router.register('/projects/:id/apply/:roleId', ({ id, roleId }) => renderApplicationForm(id, roleId));
+  router.register('/projects/:id', ({ id }) => renderProjectDetail(id));
 }
