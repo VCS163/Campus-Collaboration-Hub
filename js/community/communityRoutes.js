@@ -1,19 +1,12 @@
 import { router } from '../router.js';
+import { renderCommunityList } from './communityList.js';
+import { renderCommunityFeed } from './communityFeed.js';
+import { renderCommunityPostForm } from './communityPostForm.js';
+import { renderCommunityPostDetail } from './communityPostDetail.js';
 
-function renderPendingFeature(featureName) {
-  const container = document.querySelector('#app-content');
-  if (!container) return;
-  const section = document.createElement('section');
-  section.className = 'empty-state';
-  const heading = document.createElement('h1');
-  heading.textContent = `${featureName} module is being integrated`;
-  const message = document.createElement('p');
-  message.textContent = 'This area will become available after the assigned feature branch is reviewed and merged.';
-  section.append(heading, message);
-  container.replaceChildren(section);
+export function registerCommunityRoutes() {
+  router.register('/community', () => renderCommunityList());
+  router.register('/community/:communityId/new', ({ communityId }) => renderCommunityPostForm(communityId));
+  router.register('/community/posts/:id', ({ id }) => renderCommunityPostDetail(id));
+  router.register('/community/:id', ({ id }) => renderCommunityFeed(id));
 }
-
-  router.register('/community/:communityId/new', () => renderPendingFeature('Community post creation'));
-  router.register('/community/posts/:id', () => renderPendingFeature('Community post details'));
-  router.register('/community/:id', () => renderPendingFeature('Community feed'));
-  router.register('/community', () => renderPendingFeature('Campus Community'));
