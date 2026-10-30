@@ -11,13 +11,15 @@ function compilePattern(pattern) {
   const path = normalisePath(pattern);
   const keys = [];
   const segments = path.split('/').filter(Boolean);
-  const expression = segments.map((segment) => {
-    if (segment.startsWith(':')) {
-      keys.push(segment.slice(1));
-      return '([^/]+)';
-    }
-    return segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }).join('/');
+  const expression = segments
+    .map((segment) => {
+      if (segment.startsWith(':')) {
+        keys.push(segment.slice(1));
+        return '([^/]+)';
+      }
+      return segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    })
+    .join('/');
   return { path, keys, regex: new RegExp(`^/${expression}/?$`) };
 }
 
@@ -37,7 +39,9 @@ function dispatch() {
   for (const route of routes) {
     const match = path.match(route.regex);
     if (!match) continue;
-    const params = Object.fromEntries(route.keys.map((key, index) => [key, decodeURIComponent(match[index + 1])]));
+    const params = Object.fromEntries(
+      route.keys.map((key, index) => [key, decodeURIComponent(match[index + 1])]),
+    );
     route.handler(params, path);
     window.dispatchEvent(new CustomEvent('cch:navigated', { detail: { path, params } }));
     return true;

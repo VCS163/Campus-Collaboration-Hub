@@ -17,7 +17,10 @@ function getClubMembers(clubId) {
   if (!club) return [];
 
   const students = storage.get('students');
-  const memberships = storage.query('clubMemberships', (membership) => membership.clubId === clubId);
+  const memberships = storage.query(
+    'clubMemberships',
+    (membership) => membership.clubId === clubId,
+  );
   const members = [];
   const seenStudentIds = new Set();
 
@@ -48,14 +51,19 @@ function joinClub(clubId, studentId) {
 
   const student = storage.getById('students', studentId);
   if (!student) {
-    return { ok: false, reason: 'invalid-student', message: 'Select a valid demo student before joining.' };
+    return {
+      ok: false,
+      reason: 'invalid-student',
+      message: 'Select a valid demo student before joining.',
+    };
   }
   if (club.organiserId === studentId) {
     return { ok: false, reason: 'organiser', message: 'You already organise this club.' };
   }
 
-  const existingMembership = storage.query('clubMemberships', (membership) =>
-    membership.clubId === clubId && membership.studentId === studentId,
+  const existingMembership = storage.query(
+    'clubMemberships',
+    (membership) => membership.clubId === clubId && membership.studentId === studentId,
   )[0];
   if (existingMembership) {
     return { ok: false, reason: 'duplicate', message: 'You are already a member of this club.' };
@@ -76,7 +84,11 @@ function archiveClub(clubId, actorId) {
 
   const actor = storage.getById('students', actorId);
   if (!actor) {
-    return { ok: false, reason: 'invalid-student', message: 'Select a valid demo student before archiving.' };
+    return {
+      ok: false,
+      reason: 'invalid-student',
+      message: 'Select a valid demo student before archiving.',
+    };
   }
   if (club.organiserId !== actorId) {
     return { ok: false, reason: 'forbidden', message: 'Only the organiser can archive this club.' };
@@ -91,7 +103,12 @@ function archiveClub(clubId, actorId) {
     return { ok: false, reason: 'update-failed', message: 'The club could not be updated.' };
   }
 
-  return { ok: true, reason: 'archived', message: 'Club archived. Its history and members have been kept.', club: updatedClub };
+  return {
+    ok: true,
+    reason: 'archived',
+    message: 'Club archived. Its history and members have been kept.',
+    club: updatedClub,
+  };
 }
 
 export const clubService = Object.freeze({ getClubMembers, joinClub, archiveClub });

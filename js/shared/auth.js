@@ -6,7 +6,9 @@ const DEFAULT_PASSWORD = 'Campus2026!';
 const DEFAULT_PASSWORD_SALT = 'campus-collaboration-hub';
 
 function normaliseEmail(value) {
-  return String(value ?? '').trim().toLowerCase();
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function getStudents() {
@@ -47,7 +49,9 @@ async function derivePasswordHash(password, salt) {
     256,
   );
 
-  return Array.from(new Uint8Array(bits)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(bits))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 function buildStudentEmail(student) {
@@ -66,13 +70,9 @@ async function ensureStudentCredentials() {
   for (const student of students) {
     const email = normaliseEmail(student.email || buildStudentEmail(student));
     const salt = student.passwordSalt || `${student.id || email}-${DEFAULT_PASSWORD_SALT}`;
-    const hash = student.passwordHash || await derivePasswordHash(DEFAULT_PASSWORD, salt);
+    const hash = student.passwordHash || (await derivePasswordHash(DEFAULT_PASSWORD, salt));
 
-    if (
-      student.email !== email ||
-      student.passwordSalt !== salt ||
-      student.passwordHash !== hash
-    ) {
+    if (student.email !== email || student.passwordSalt !== salt || student.passwordHash !== hash) {
       storage.update('students', student.id, {
         email,
         passwordSalt: salt,
@@ -99,7 +99,8 @@ function setAuthenticatedUser(studentId) {
 }
 
 function renderSwitcher() {
-  const select = typeof document !== 'undefined' ? document.querySelector('#demo-user-select') : null;
+  const select =
+    typeof document !== 'undefined' ? document.querySelector('#demo-user-select') : null;
   if (!select) return null;
 
   const currentUserId = getCurrentUserId();
@@ -122,9 +123,8 @@ function renderSwitcher() {
     select.append(option);
   }
 
-  select.value = currentUserId && students.some((student) => student.id === currentUserId)
-    ? currentUserId
-    : '';
+  select.value =
+    currentUserId && students.some((student) => student.id === currentUserId) ? currentUserId : '';
   select.disabled = !isAuthenticated();
   return select;
 }
@@ -153,7 +153,11 @@ async function login({ email, password }) {
   const trimmedPassword = String(password ?? '').trim();
 
   if (!trimmedEmail || !trimmedPassword) {
-    return { ok: false, reason: 'missing_credentials', message: 'Enter both your campus email and password.' };
+    return {
+      ok: false,
+      reason: 'missing_credentials',
+      message: 'Enter both your campus email and password.',
+    };
   }
 
   const student = getStudents().find((candidate) => {
@@ -161,15 +165,23 @@ async function login({ email, password }) {
     return candidateEmail === trimmedEmail;
   });
   if (!student) {
-    return { ok: false, reason: 'unknown_student', message: 'No student account matches that campus email.' };
+    return {
+      ok: false,
+      reason: 'unknown_student',
+      message: 'No student account matches that campus email.',
+    };
   }
 
   const salt = student.passwordSalt || `${student.id}-${DEFAULT_PASSWORD_SALT}`;
-  const expectedHash = student.passwordHash || await derivePasswordHash(DEFAULT_PASSWORD, salt);
+  const expectedHash = student.passwordHash || (await derivePasswordHash(DEFAULT_PASSWORD, salt));
   const suppliedHash = await derivePasswordHash(trimmedPassword, salt);
 
   if (suppliedHash !== expectedHash) {
-    return { ok: false, reason: 'invalid_password', message: 'Incorrect password for this student account.' };
+    return {
+      ok: false,
+      reason: 'invalid_password',
+      message: 'Incorrect password for this student account.',
+    };
   }
 
   setAuthenticatedUser(student.id);
@@ -203,7 +215,11 @@ function onUserChange(callback) {
 
 function getStudentByEmail(email) {
   const targetEmail = normaliseEmail(email);
-  return getStudents().find((student) => normaliseEmail(student.email || buildStudentEmail(student)) === targetEmail) ?? null;
+  return (
+    getStudents().find(
+      (student) => normaliseEmail(student.email || buildStudentEmail(student)) === targetEmail,
+    ) ?? null
+  );
 }
 
 export const auth = Object.freeze({

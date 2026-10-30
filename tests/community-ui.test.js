@@ -2,9 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const postFormSource = await readFile(new URL('../js/community/communityPostForm.js', import.meta.url), 'utf8');
-const communityListSource = await readFile(new URL('../js/community/communityList.js', import.meta.url), 'utf8');
-const communityRoutesSource = await readFile(new URL('../js/community/communityRoutes.js', import.meta.url), 'utf8');
+const postFormSource = await readFile(
+  new URL('../js/community/communityPostForm.js', import.meta.url),
+  'utf8',
+);
+const communityListSource = await readFile(
+  new URL('../js/community/communityList.js', import.meta.url),
+  'utf8',
+);
+const communityRoutesSource = await readFile(
+  new URL('../js/community/communityRoutes.js', import.meta.url),
+  'utf8',
+);
 const pagesCss = await readFile(new URL('../css/pages.css', import.meta.url), 'utf8');
 
 test('community post composer exposes a clear destination context and dedicated layout classes', () => {

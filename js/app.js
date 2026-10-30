@@ -18,9 +18,24 @@ const resetButton = document.querySelector('#reset-demo-data');
 
 const navItems = [
   { label: 'Clubs', path: '/clubs', glyph: 'C', description: 'Temporary Clubs & Interest Groups' },
-  { label: 'Projects', path: '/projects', glyph: 'P', description: 'Project & Contributor Collaboration' },
-  { label: 'Learning', path: '/learning', glyph: 'L', description: 'Learning & Mentorship Exchange' },
-  { label: 'Community', path: '/community', glyph: 'M', description: 'Campus Community & Information Sharing' },
+  {
+    label: 'Projects',
+    path: '/projects',
+    glyph: 'P',
+    description: 'Project & Contributor Collaboration',
+  },
+  {
+    label: 'Learning',
+    path: '/learning',
+    glyph: 'L',
+    description: 'Learning & Mentorship Exchange',
+  },
+  {
+    label: 'Community',
+    path: '/community',
+    glyph: 'M',
+    description: 'Campus Community & Information Sharing',
+  },
   { label: 'Profile', path: '/profile', glyph: 'U', description: 'Shared student identity' },
 ];
 
@@ -75,7 +90,11 @@ function renderLoginPage() {
   const heading = ui.createElement('div', { className: 'page-heading-copy' });
   heading.append(ui.createElement('div', { className: 'eyebrow', text: 'AUTHENTICATED ACCESS' }));
   heading.append(ui.createElement('h1', { text: 'Sign in to Campus Collaboration Hub' }));
-  heading.append(ui.createElement('p', { text: 'Use your student account to manage clubs, projects, learning, and community activity.' }));
+  heading.append(
+    ui.createElement('p', {
+      text: 'Use your student account to manage clubs, projects, learning, and community activity.',
+    }),
+  );
   card.append(heading);
 
   const form = document.createElement('form');
@@ -106,7 +125,10 @@ function renderLoginPage() {
   passwordField.append(passwordInput);
 
   const submitButton = ui.createButton({ text: 'Sign in', variant: 'primary', type: 'submit' });
-  const demoHint = ui.createElement('p', { className: 'form-hint', text: 'Demo seed accounts use the password Campus2026!.' });
+  const demoHint = ui.createElement('p', {
+    className: 'form-hint',
+    text: 'Demo seed accounts use the password Campus2026!.',
+  });
   const errorText = ui.createElement('p', { className: 'auth-error', attrs: { role: 'alert' } });
 
   form.addEventListener('submit', async (event) => {
@@ -137,9 +159,19 @@ function renderProfile() {
   const copy = ui.createElement('div', { className: 'page-heading-copy' });
   copy.append(ui.createElement('div', { className: 'eyebrow', text: 'SHARED STUDENT IDENTITY' }));
   copy.append(ui.createElement('h1', { text: 'Your profile' }));
-  copy.append(ui.createElement('p', { text: 'The same authenticated student identity is referenced by Clubs, Projects, Learning and Community.' }));
+  copy.append(
+    ui.createElement('p', {
+      text: 'The same authenticated student identity is referenced by Clubs, Projects, Learning and Community.',
+    }),
+  );
   heading.append(copy);
-  heading.append(ui.createButton({ text: 'Edit profile', variant: 'primary', onClick: () => router.navigate('/profile/edit') }));
+  heading.append(
+    ui.createButton({
+      text: 'Edit profile',
+      variant: 'primary',
+      onClick: () => router.navigate('/profile/edit'),
+    }),
+  );
   page.append(heading);
 
   if (!user) {
@@ -149,19 +181,44 @@ function renderProfile() {
   }
 
   const profile = ui.createElement('section', { className: 'card profile-card' });
-  const initials = user.displayName.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
-  profile.append(ui.createElement('div', { className: 'profile-avatar', text: initials, attrs: { 'aria-hidden': 'true' } }));
+  const initials = user.displayName
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+  profile.append(
+    ui.createElement('div', {
+      className: 'profile-avatar',
+      text: initials,
+      attrs: { 'aria-hidden': 'true' },
+    }),
+  );
   const details = ui.createElement('div', { className: 'profile-details' });
   details.append(ui.createElement('h2', { text: user.displayName }));
-  details.append(ui.createElement('div', { className: 'profile-meta', text: `Year ${user.year} · ${user.branch} · IIIT Dharwad` }));
+  details.append(
+    ui.createElement('div', {
+      className: 'profile-meta',
+      text: `Year ${user.year} · ${user.branch} · IIIT Dharwad`,
+    }),
+  );
   details.append(ui.createElement('p', { text: user.bio }));
   details.append(ui.createElement('strong', { text: 'Skills I can contribute' }));
   const knownTags = ui.createElement('div', { className: 'tag-list' });
-  (user.skillsKnown || []).forEach((skill) => knownTags.append(ui.createElement('span', { className: 'tag', text: skill })));
+  (user.skillsKnown || []).forEach((skill) =>
+    knownTags.append(ui.createElement('span', { className: 'tag', text: skill })),
+  );
   details.append(knownTags);
-  details.append(ui.createElement('strong', { text: 'Skills I am learning', attrs: { style: 'display:block;margin-top:1rem' } }));
+  details.append(
+    ui.createElement('strong', {
+      text: 'Skills I am learning',
+      attrs: { style: 'display:block;margin-top:1rem' },
+    }),
+  );
   const learningTags = ui.createElement('div', { className: 'tag-list' });
-  (user.skillsLearning || []).forEach((skill) => learningTags.append(ui.createElement('span', { className: 'tag', text: skill })));
+  (user.skillsLearning || []).forEach((skill) =>
+    learningTags.append(ui.createElement('span', { className: 'tag', text: skill })),
+  );
   details.append(learningTags);
   profile.append(details);
   page.append(profile);
@@ -170,7 +227,11 @@ function renderProfile() {
   note.append(ui.createElement('span', { className: 'notice-mark', text: 'i' }));
   const noteCopy = ui.createElement('div');
   noteCopy.append(ui.createElement('strong', { text: 'Authenticated student session' }));
-  noteCopy.append(ui.createElement('p', { text: 'Your active session is stored for this browser and remains scoped to the signed-in student account.' }));
+  noteCopy.append(
+    ui.createElement('p', {
+      text: 'Your active session is stored for this browser and remains scoped to the signed-in student account.',
+    }),
+  );
   note.append(noteCopy);
   page.append(note);
 
@@ -181,8 +242,16 @@ function renderProfile() {
 function renderFatalError(error) {
   const panel = ui.createElement('section', { className: 'empty-state' });
   panel.append(ui.createElement('h1', { text: 'The workspace could not start' }));
-  panel.append(ui.createElement('p', { text: error?.message || 'An unexpected initialisation error occurred.' }));
-  panel.append(ui.createElement('p', { text: 'Check that the folder is being served over HTTP by VS Code Live Server and that browser storage is enabled.' }));
+  panel.append(
+    ui.createElement('p', {
+      text: error?.message || 'An unexpected initialisation error occurred.',
+    }),
+  );
+  panel.append(
+    ui.createElement('p', {
+      text: 'Check that the folder is being served over HTTP by VS Code Live Server and that browser storage is enabled.',
+    }),
+  );
   appContent.replaceChildren(panel);
 }
 
@@ -205,7 +274,9 @@ function attachGlobalHandlers() {
   });
 
   resetButton?.addEventListener('click', () => {
-    const confirmed = window.confirm('Reset all Campus Collaboration Hub demo data to its original state? This removes changes saved by this prototype in this browser.');
+    const confirmed = window.confirm(
+      'Reset all Campus Collaboration Hub demo data to its original state? This removes changes saved by this prototype in this browser.',
+    );
     if (!confirmed) return;
     try {
       storage.resetDemoData();

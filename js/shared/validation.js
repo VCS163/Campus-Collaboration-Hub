@@ -6,7 +6,9 @@ function labelOrDefault(fieldLabel) {
 
 const validators = {
   required(value, fieldLabel = 'This field') {
-    const isMissing = value === null || value === undefined ||
+    const isMissing =
+      value === null ||
+      value === undefined ||
       (typeof value === 'string' && value.trim() === '') ||
       (Array.isArray(value) && value.length === 0);
     return isMissing ? `${labelOrDefault(fieldLabel)} is required.` : null;
@@ -34,7 +36,8 @@ const validators = {
   },
 
   isPositiveInt(value, fieldLabel = 'This field') {
-    if (value === '' || value === null || value === undefined) return `${labelOrDefault(fieldLabel)} is required.`;
+    if (value === '' || value === null || value === undefined)
+      return `${labelOrDefault(fieldLabel)} is required.`;
     const numberValue = Number(value);
     return Number.isInteger(numberValue) && numberValue > 0
       ? null
@@ -43,7 +46,9 @@ const validators = {
 
   isDate(value, fieldLabel = 'Date') {
     if (!value) return null;
-    return !Number.isNaN(Date.parse(value)) ? null : `${labelOrDefault(fieldLabel)} must be a valid date.`;
+    return !Number.isNaN(Date.parse(value))
+      ? null
+      : `${labelOrDefault(fieldLabel)} must be a valid date.`;
   },
 
   isFutureDate(value, fieldLabel = 'Date') {
@@ -68,8 +73,12 @@ const validators = {
   noDuplicate(collection, field, value, excludeId = null) {
     if (value === null || value === undefined || String(value).trim() === '') return null;
     const normalisedValue = String(value).trim().toLocaleLowerCase();
-    const duplicate = storage.get(collection).some((record) =>
-      record.id !== excludeId && String(record[field] ?? '').trim().toLocaleLowerCase() === normalisedValue,
+    const duplicate = storage.get(collection).some(
+      (record) =>
+        record.id !== excludeId &&
+        String(record[field] ?? '')
+          .trim()
+          .toLocaleLowerCase() === normalisedValue,
     );
     return duplicate ? `A record with this ${field} already exists.` : null;
   },
@@ -96,7 +105,9 @@ function validateForm(formData, rules) {
 function clearFormErrors(formElement) {
   if (!formElement) return;
   formElement.querySelectorAll('.form-error').forEach((errorElement) => errorElement.remove());
-  formElement.querySelectorAll('[aria-invalid="true"]').forEach((field) => field.removeAttribute('aria-invalid'));
+  formElement
+    .querySelectorAll('[aria-invalid="true"]')
+    .forEach((field) => field.removeAttribute('aria-invalid'));
 }
 
 function showFormErrors(formElement, errors) {
@@ -120,5 +131,10 @@ function showFormErrors(formElement, errors) {
   }
 }
 
-export const validation = Object.freeze({ validators, validateForm, showFormErrors, clearFormErrors });
+export const validation = Object.freeze({
+  validators,
+  validateForm,
+  showFormErrors,
+  clearFormErrors,
+});
 export { validators, validateForm, showFormErrors, clearFormErrors };

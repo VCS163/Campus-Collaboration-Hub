@@ -1,41 +1,40 @@
-
 :root {
   color-scheme: light;
 
   /* Core palette */
-  --color-primary: #A67C3D;
-  --color-primary-dark: #825F31;
-  --color-primary-soft: #F6EFE2;
-  --color-secondary: #56616B;
-  --color-secondary-dark: #414C56;
-  --color-secondary-soft: #EDF0F2;
-  --color-accent: #A85F4B;
-  --color-accent-dark: #8F4D3B;
-  --color-accent-soft: #F7ECE8;
-  --color-sage: #5F7A62;
-  --color-sage-soft: #EDF2EC;
+  --color-primary: #a67c3d;
+  --color-primary-dark: #825f31;
+  --color-primary-soft: #f6efe2;
+  --color-secondary: #56616b;
+  --color-secondary-dark: #414c56;
+  --color-secondary-soft: #edf0f2;
+  --color-accent: #a85f4b;
+  --color-accent-dark: #8f4d3b;
+  --color-accent-soft: #f7ece8;
+  --color-sage: #5f7a62;
+  --color-sage-soft: #edf2ec;
 
   /* Status colors */
-  --color-success: #5F7A62;
-  --color-success-soft: #EDF2EC;
-  --color-danger: #A84F46;
-  --color-danger-soft: #F8ECE9;
-  --color-warning: #A67C3D;
-  --color-warning-soft: #F8F1E5;
+  --color-success: #5f7a62;
+  --color-success-soft: #edf2ec;
+  --color-danger: #a84f46;
+  --color-danger-soft: #f8ece9;
+  --color-warning: #a67c3d;
+  --color-warning-soft: #f8f1e5;
 
   /* Surfaces and typography */
-  --color-bg: #F4F2ED;
-  --color-surface: #FFFFFF;
-  --color-surface-muted: #F8F6F1;
-  --color-surface-warm: #F7F0E3;
-  --color-border: #E5DED2;
-  --color-border-strong: #D2C7B7;
-  --color-text: #1F1D1B;
-  --color-text-muted: #514D49;
-  --color-text-soft: #837A70;
+  --color-bg: #f4f2ed;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8f6f1;
+  --color-surface-warm: #f7f0e3;
+  --color-border: #e5ded2;
+  --color-border-strong: #d2c7b7;
+  --color-text: #1f1d1b;
+  --color-text-muted: #514d49;
+  --color-text-soft: #837a70;
 
   /* Typography: Aptos is the primary family used in the project references. */
-  --font-family: Aptos, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: Aptos, 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;

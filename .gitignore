@@ -12,6 +12,7 @@ scratch/
 node_modules/
 dist/
 build/
+coverage/
 
 # Local environment files
 .env

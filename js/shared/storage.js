@@ -34,13 +34,18 @@ function getLocalStorage() {
     if (!globalThis.localStorage) throw new Error('Browser storage is unavailable.');
     return globalThis.localStorage;
   } catch (error) {
-    throw new StorageError('Local storage is unavailable. Use a normal browser window and allow site data.', error);
+    throw new StorageError(
+      'Local storage is unavailable. Use a normal browser window and allow site data.',
+      error,
+    );
   }
 }
 
 function assertCollection(collection) {
   if (!COLLECTION_SET.has(collection)) {
-    throw new TypeError(`Unknown collection "${collection}". Expected one of: ${COLLECTIONS.join(', ')}.`);
+    throw new TypeError(
+      `Unknown collection "${collection}". Expected one of: ${COLLECTIONS.join(', ')}.`,
+    );
   }
 }
 
@@ -50,7 +55,9 @@ function collectionKey(collection) {
 }
 
 function createId(collection) {
-  const randomPart = Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0');
+  const randomPart = Math.floor(Math.random() * 0x10000)
+    .toString(16)
+    .padStart(4, '0');
   return `${collection}_${Date.now()}_${randomPart}`;
 }
 
@@ -62,13 +69,20 @@ function readCollection(collection) {
   try {
     const parsed = JSON.parse(rawValue);
     if (!Array.isArray(parsed)) {
-      console.warn(`The cch_${collection} value is not an array. Treating it as empty until the next save.`);
+      console.warn(
+        `The cch_${collection} value is not an array. Treating it as empty until the next save.`,
+      );
       return [];
     }
-    return parsed.filter((record) => record && typeof record === 'object' && !Array.isArray(record));
+    return parsed.filter(
+      (record) => record && typeof record === 'object' && !Array.isArray(record),
+    );
   } catch (error) {
     // Do not crash the application or silently destroy the raw value on read.
-    console.warn(`Could not parse cch_${collection}. The collection will be treated as empty.`, error);
+    console.warn(
+      `Could not parse cch_${collection}. The collection will be treated as empty.`,
+      error,
+    );
     return [];
   }
 }
@@ -77,9 +91,10 @@ function writeCollection(collection, records, action, record = null) {
   try {
     getLocalStorage().setItem(collectionKey(collection), JSON.stringify(records));
   } catch (error) {
-    const message = error?.name === 'QuotaExceededError'
-      ? 'Browser storage is full. Remove some demo data and try again.'
-      : 'Could not save this change to browser storage.';
+    const message =
+      error?.name === 'QuotaExceededError'
+        ? 'Browser storage is full. Remove some demo data and try again.'
+        : 'Could not save this change to browser storage.';
     throw new StorageError(message, error);
   }
 
@@ -157,7 +172,8 @@ function remove(collection, id) {
 }
 
 function query(collection, filterFn) {
-  if (typeof filterFn !== 'function') throw new TypeError('storage.query expects a filter function.');
+  if (typeof filterFn !== 'function')
+    throw new TypeError('storage.query expects a filter function.');
   return get(collection).filter(filterFn);
 }
 
@@ -170,7 +186,8 @@ function getCurrentUserId() {
 }
 
 function registerSeedInitializer(initializer) {
-  if (typeof initializer !== 'function') throw new TypeError('Seed initializer must be a function.');
+  if (typeof initializer !== 'function')
+    throw new TypeError('Seed initializer must be a function.');
   seedInitializer = initializer;
 }
 
@@ -186,7 +203,9 @@ function resetDemoData() {
   keysToRemove.forEach((key) => storage.removeItem(key));
 
   if (typeof seedInitializer !== 'function') {
-    throw new StorageError('Seed data has not been registered. Refresh the app before resetting demo data.');
+    throw new StorageError(
+      'Seed data has not been registered. Refresh the app before resetting demo data.',
+    );
   }
 
   seedInitializer();

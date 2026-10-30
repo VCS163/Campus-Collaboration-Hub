@@ -1,62 +1,70 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f6f6fb">
-  <meta name="description" content="Campus Collaboration Hub helps students find people to build, learn and collaborate with.">
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <title>Campus Collaboration Hub</title>
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/pages.css">
-  <script type="module" src="js/app.js"></script>
-</head>
-<body>
-  <a class="skip-link" href="#app-content">Skip to content</a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f6fb" />
+    <meta
+      name="description"
+      content="Campus Collaboration Hub helps students find people to build, learn and collaborate with."
+    />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <title>Campus Collaboration Hub</title>
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#app-content">Skip to content</a>
 
-  <header class="app-header">
-    <div class="header-inner">
-      <a class="brand" href="#/clubs" aria-label="Campus Collaboration Hub home">
-        <span class="brand-mark" aria-hidden="true">CC</span>
-        <span class="brand-copy">
-          <span class="brand-name">Campus Collaboration Hub</span>
-          <span class="brand-subtitle">Find your people. Move ideas forward.</span>
-        </span>
-      </a>
+    <header class="app-header">
+      <div class="header-inner">
+        <a class="brand" href="#/clubs" aria-label="Campus Collaboration Hub home">
+          <span class="brand-mark" aria-hidden="true">CC</span>
+          <span class="brand-copy">
+            <span class="brand-name">Campus Collaboration Hub</span>
+            <span class="brand-subtitle">Find your people. Move ideas forward.</span>
+          </span>
+        </a>
 
-      <nav class="app-nav" id="main-nav" aria-label="Primary navigation">
-        <!-- Navigation is rendered by js/app.js. -->
-      </nav>
+        <nav class="app-nav" id="main-nav" aria-label="Primary navigation">
+          <!-- Navigation is rendered by js/app.js. -->
+        </nav>
 
-      <div class="header-tools">
-        <button class="btn btn-secondary" id="auth-action" type="button">Sign in</button>
-        <label class="demo-user-control" for="demo-user-select">
-          <span class="demo-user-label">Student account</span>
-          <select id="demo-user-select" aria-label="Switch signed-in student account">
-            <option>Loading users…</option>
-          </select>
-        </label>
-        <button class="btn btn-quiet btn-reset" id="reset-demo-data" type="button" title="Restore the original demonstration data">
-          <span aria-hidden="true">↺</span>
-          <span class="reset-label">Reset demo</span>
-        </button>
+        <div class="header-tools">
+          <button class="btn btn-secondary" id="auth-action" type="button">Sign in</button>
+          <label class="demo-user-control" for="demo-user-select">
+            <span class="demo-user-label">Student account</span>
+            <select id="demo-user-select" aria-label="Switch signed-in student account">
+              <option>Loading users…</option>
+            </select>
+          </label>
+          <button
+            class="btn btn-quiet btn-reset"
+            id="reset-demo-data"
+            type="button"
+            title="Restore the original demonstration data"
+          >
+            <span aria-hidden="true">↺</span>
+            <span class="reset-label">Reset demo</span>
+          </button>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main id="app-content" class="app-main" tabindex="-1">
-    <div class="app-loading" role="status">Preparing your campus workspace…</div>
-  </main>
+    <main id="app-content" class="app-main" tabindex="-1">
+      <div class="app-loading" role="status">Preparing your campus workspace…</div>
+    </main>
 
-  <footer class="app-footer">
-    <div class="footer-inner">
-      <span>Campus Collaboration Hub</span>
-      <span class="footer-note">Course prototype · Demo data stays in this browser</span>
-    </div>
-  </footer>
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <span>Campus Collaboration Hub</span>
+        <span class="footer-note">Course prototype · Demo data stays in this browser</span>
+      </div>
+    </footer>
 
-  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
-</body>
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+  </body>
 </html>

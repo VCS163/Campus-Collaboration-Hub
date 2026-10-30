@@ -3,27 +3,40 @@ import assert from 'node:assert/strict';
 
 class MemoryStorage {
   #values = new Map();
-  get length() { return this.#values.size; }
-  key(index) { return [...this.#values.keys()][index] ?? null; }
-  getItem(key) { return this.#values.has(String(key)) ? this.#values.get(String(key)) : null; }
-  setItem(key, value) { this.#values.set(String(key), String(value)); }
-  removeItem(key) { this.#values.delete(String(key)); }
-  clear() { this.#values.clear(); }
+  get length() {
+    return this.#values.size;
+  }
+  key(index) {
+    return [...this.#values.keys()][index] ?? null;
+  }
+  getItem(key) {
+    return this.#values.has(String(key)) ? this.#values.get(String(key)) : null;
+  }
+  setItem(key, value) {
+    this.#values.set(String(key), String(value));
+  }
+  removeItem(key) {
+    this.#values.delete(String(key));
+  }
+  clear() {
+    this.#values.clear();
+  }
 }
 
 globalThis.localStorage = new MemoryStorage();
 
 let storage;
+let seed;
 let clubService;
 let validation;
 let validators;
-let seed;
 
 before(async () => {
   ({ storage } = await import('../js/shared/storage.js'));
   ({ seed } = await import('../js/shared/seed.js'));
   ({ clubService } = await import('../js/clubs/clubService.js'));
   ({ validation, validators } = await import('../js/shared/validation.js'));
+  seed.initialise();
 });
 
 beforeEach(() => {
@@ -41,7 +54,8 @@ test('seeded club roster includes organiser as an implicit member', () => {
 test('joining creates one membership and duplicate joins are blocked', () => {
   const created = storage.insert('clubs', {
     title: 'Campus AI Builders',
-    description: 'A temporary group to explore practical AI tools and build small campus experiments.',
+    description:
+      'A temporary group to explore practical AI tools and build small campus experiments.',
     category: 'Technology',
     duration: '4 weeks',
     goal: 'Learn together and demonstrate one small working AI prototype.',
@@ -52,12 +66,24 @@ test('joining creates one membership and duplicate joins are blocked', () => {
 
   const firstJoin = clubService.joinClub(created.id, 'student_priya_nair');
   assert.equal(firstJoin.ok, true);
-  assert.equal(storage.query('clubMemberships', (item) => item.clubId === created.id && item.studentId === 'student_priya_nair').length, 1);
+  assert.equal(
+    storage.query(
+      'clubMemberships',
+      (item) => item.clubId === created.id && item.studentId === 'student_priya_nair',
+    ).length,
+    1,
+  );
 
   const duplicateJoin = clubService.joinClub(created.id, 'student_priya_nair');
   assert.equal(duplicateJoin.ok, false);
   assert.equal(duplicateJoin.reason, 'duplicate');
-  assert.equal(storage.query('clubMemberships', (item) => item.clubId === created.id && item.studentId === 'student_priya_nair').length, 1);
+  assert.equal(
+    storage.query(
+      'clubMemberships',
+      (item) => item.clubId === created.id && item.studentId === 'student_priya_nair',
+    ).length,
+    1,
+  );
   assert.equal(clubService.getClubMembers(created.id).length, 2);
 });
 
@@ -65,7 +91,13 @@ test('organiser cannot create a duplicate membership for themselves', () => {
   const result = clubService.joinClub('club_robotics_circle', 'student_arjun_sharma');
   assert.equal(result.ok, false);
   assert.equal(result.reason, 'organiser');
-  assert.equal(storage.query('clubMemberships', (item) => item.clubId === 'club_robotics_circle' && item.studentId === 'student_arjun_sharma').length, 0);
+  assert.equal(
+    storage.query(
+      'clubMemberships',
+      (item) => item.clubId === 'club_robotics_circle' && item.studentId === 'student_arjun_sharma',
+    ).length,
+    0,
+  );
 });
 
 test('only the organiser can archive an active club', () => {
@@ -96,7 +128,10 @@ test('archived clubs reject new memberships and cannot be archived twice', () =>
 
 test('unknown club and unknown student are rejected', () => {
   assert.equal(clubService.joinClub('missing-club', 'student_priya_nair').reason, 'not-found');
-  assert.equal(clubService.joinClub('club_robotics_circle', 'missing-student').reason, 'invalid-student');
+  assert.equal(
+    clubService.joinClub('club_robotics_circle', 'missing-student').reason,
+    'invalid-student',
+  );
   assert.equal(clubService.archiveClub('missing-club', 'student_arjun_sharma').reason, 'not-found');
 });
 
@@ -114,7 +149,12 @@ test('club form validation requires all five fields and validates bounds/categor
     ],
     category: [
       (value) => validators.required(value, 'Category'),
-      (value) => validators.isEnum(value, ['Technology', 'Arts', 'Sports', 'Academic', 'Social'], 'Category'),
+      (value) =>
+        validators.isEnum(
+          value,
+          ['Technology', 'Arts', 'Sports', 'Academic', 'Social'],
+          'Category',
+        ),
     ],
     duration: [
       (value) => validators.required(value, 'Intended duration'),
@@ -127,21 +167,36 @@ test('club form validation requires all five fields and validates bounds/categor
     ],
   };
 
-  const empty = validation.validateForm({ title: '', description: '', category: '', duration: '', goal: '' }, rules);
+  const empty = validation.validateForm(
+    { title: '', description: '', category: '', duration: '', goal: '' },
+    rules,
+  );
   assert.equal(empty.valid, false);
   assert.equal(Object.keys(empty.errors).length, 5);
 
-  const invalidCategory = validation.validateForm({
-    title: 'Valid Club', description: 'A valid description for the club.', category: 'Other',
-    duration: '4 weeks', goal: 'A valid goal for this temporary group.',
-  }, rules);
+  const invalidCategory = validation.validateForm(
+    {
+      title: 'Valid Club',
+      description: 'A valid description for the club.',
+      category: 'Other',
+      duration: '4 weeks',
+      goal: 'A valid goal for this temporary group.',
+    },
+    rules,
+  );
   assert.equal(invalidCategory.valid, false);
   assert.ok(invalidCategory.errors.category);
 
-  const valid = validation.validateForm({
-    title: 'Campus AI Builders', description: 'A valid description for the club.', category: 'Technology',
-    duration: '4 weeks', goal: 'A valid goal for this temporary group.',
-  }, rules);
+  const valid = validation.validateForm(
+    {
+      title: 'Campus AI Builders',
+      description: 'A valid description for the club.',
+      category: 'Technology',
+      duration: '4 weeks',
+      goal: 'A valid goal for this temporary group.',
+    },
+    rules,
+  );
   assert.equal(valid.valid, true);
   assert.deepEqual(valid.errors, {});
 });

@@ -8,7 +8,13 @@ import { formatCount } from './communityFormatters.js';
 function formatDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Date unavailable';
-  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+  return new Intl.DateTimeFormat('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
 }
 
 export function renderCommunityPostDetail(postId) {
@@ -16,21 +22,43 @@ export function renderCommunityPostDetail(postId) {
   const details = communityService.getPostDetails(postId);
   const page = ui.createElement('div', { className: 'page-stack community-page' });
   if (!details) {
-    ui.showEmpty(page, 'This post could not be found. It may have been removed or the community may be unavailable.', 'Back to communities', '#/community');
+    ui.showEmpty(
+      page,
+      'This post could not be found. It may have been removed or the community may be unavailable.',
+      'Back to communities',
+      '#/community',
+    );
     appContent.replaceChildren(page);
     return;
   }
 
   const { post, community, comments, reactions } = details;
-  page.append(ui.createElement('a', { className: 'back-link', text: `← Back to ${community.name}`, attrs: { href: `#/community/${community.id}` } }));
+  page.append(
+    ui.createElement('a', {
+      className: 'back-link',
+      text: `← Back to ${community.name}`,
+      attrs: { href: `#/community/${community.id}` },
+    }),
+  );
 
   const article = ui.createElement('article', { className: 'card community-post-detail-card' });
   const meta = ui.createElement('div', { className: 'community-post-meta' });
-  meta.append(ui.createBadge(post.type, post.type === 'question' ? 'warning' : post.type === 'resource' ? 'success' : 'primary'));
-  meta.append(ui.createElement('span', { text: `${community.name} · ${post.authorName} · ${post.authorBranch || 'Student'}` }));
+  meta.append(
+    ui.createBadge(
+      post.type,
+      post.type === 'question' ? 'warning' : post.type === 'resource' ? 'success' : 'primary',
+    ),
+  );
+  meta.append(
+    ui.createElement('span', {
+      text: `${community.name} · ${post.authorName} · ${post.authorBranch || 'Student'}`,
+    }),
+  );
   article.append(meta);
   article.append(ui.createElement('h1', { text: post.title }));
-  article.append(ui.createElement('span', { className: 'post-timestamp', text: formatDate(post.createdAt) }));
+  article.append(
+    ui.createElement('span', { className: 'post-timestamp', text: formatDate(post.createdAt) }),
+  );
   article.append(ui.createElement('p', { className: 'community-post-body', text: post.body }));
 
   const actionRow = ui.createElement('div', { className: 'community-post-actions' });
@@ -42,7 +70,10 @@ export function renderCommunityPostDetail(postId) {
     variant: liked ? 'primary' : 'secondary',
     disabled: isAuthor,
     onClick: () => {
-      const outcome = communityService.toggleLike({ postId: post.id, studentId: auth.getCurrentUserId() });
+      const outcome = communityService.toggleLike({
+        postId: post.id,
+        studentId: auth.getCurrentUserId(),
+      });
       if (!outcome.ok) ui.showToast(outcome.message || 'Could not update reaction.', 'error');
       else ui.showToast(outcome.liked ? 'You liked this post.' : 'Like removed.', 'success');
       router.dispatch();
@@ -50,8 +81,16 @@ export function renderCommunityPostDetail(postId) {
   });
   likeButton.setAttribute('aria-pressed', String(liked));
   actionRow.append(likeButton);
-  actionRow.append(ui.createElement('span', { className: 'community-action-count', text: formatCount(comments.length, 'comment') }));
-  if (isAuthor) actionRow.append(ui.createElement('span', { className: 'form-hint', text: 'You cannot like your own post.' }));
+  actionRow.append(
+    ui.createElement('span', {
+      className: 'community-action-count',
+      text: formatCount(comments.length, 'comment'),
+    }),
+  );
+  if (isAuthor)
+    actionRow.append(
+      ui.createElement('span', { className: 'form-hint', text: 'You cannot like your own post.' }),
+    );
   article.append(actionRow);
   page.append(article);
 
@@ -59,12 +98,26 @@ export function renderCommunityPostDetail(postId) {
   const commentsHeading = ui.createElement('div', { className: 'section-heading' });
   const headingCopy = ui.createElement('div');
   headingCopy.append(ui.createElement('h2', { text: `Discussion (${comments.length})` }));
-  headingCopy.append(ui.createElement('p', { text: 'Add a helpful, respectful comment to keep the conversation moving.' }));
+  headingCopy.append(
+    ui.createElement('p', {
+      text: 'Add a helpful, respectful comment to keep the conversation moving.',
+    }),
+  );
   commentsHeading.append(headingCopy);
   commentsSection.append(commentsHeading);
 
-  const commentForm = ui.createElement('form', { className: 'card comment-form', attrs: { novalidate: true } });
-  const bodyGroup = ui.createFormGroup({ label: 'Write a comment', type: 'textarea', name: 'body', placeholder: 'Share your thoughts…', required: true, hint: '1–600 characters.' });
+  const commentForm = ui.createElement('form', {
+    className: 'card comment-form',
+    attrs: { novalidate: true },
+  });
+  const bodyGroup = ui.createFormGroup({
+    label: 'Write a comment',
+    type: 'textarea',
+    name: 'body',
+    placeholder: 'Share your thoughts…',
+    required: true,
+    hint: '1–600 characters.',
+  });
   const bodyInput = bodyGroup.querySelector('textarea');
   bodyInput.maxLength = 600;
   bodyInput.rows = 3;
@@ -73,14 +126,25 @@ export function renderCommunityPostDetail(postId) {
   commentForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const body = bodyInput.value.trim();
-    const validationResult = validation.validateForm({ body }, {
-      body: [(value) => validators.required(value, 'Comment'), (value) => validators.minLength(value, 1, 'Comment'), (value) => validators.maxLength(value, 600, 'Comment')],
-    });
+    const validationResult = validation.validateForm(
+      { body },
+      {
+        body: [
+          (value) => validators.required(value, 'Comment'),
+          (value) => validators.minLength(value, 1, 'Comment'),
+          (value) => validators.maxLength(value, 600, 'Comment'),
+        ],
+      },
+    );
     validation.showFormErrors(commentForm, validationResult.errors);
     if (!validationResult.valid) return;
 
     try {
-      const created = communityService.addComment({ postId: post.id, authorId: auth.getCurrentUserId(), body });
+      const created = communityService.addComment({
+        postId: post.id,
+        authorId: auth.getCurrentUserId(),
+        body,
+      });
       if (!created.ok) {
         ui.showToast(created.message || 'The comment could not be added.', 'error');
         return;
@@ -88,7 +152,10 @@ export function renderCommunityPostDetail(postId) {
       ui.showToast(created.message, 'success');
       router.dispatch();
     } catch (error) {
-      ui.showToast(error.message || 'The comment could not be saved. Your text is still on the form.', 'error');
+      ui.showToast(
+        error.message || 'The comment could not be saved. Your text is still on the form.',
+        'error',
+      );
     }
   });
   commentsSection.append(commentForm);
@@ -101,9 +168,15 @@ export function renderCommunityPostDetail(postId) {
       const item = ui.createElement('article', { className: 'community-comment' });
       const top = ui.createElement('div', { className: 'community-comment-meta' });
       top.append(ui.createElement('strong', { text: comment.authorName }));
-      top.append(ui.createElement('span', { text: `${comment.authorBranch || 'Student'} · ${formatDate(comment.createdAt)}` }));
+      top.append(
+        ui.createElement('span', {
+          text: `${comment.authorBranch || 'Student'} · ${formatDate(comment.createdAt)}`,
+        }),
+      );
       item.append(top);
-      item.append(ui.createElement('p', { className: 'community-comment-body', text: comment.body }));
+      item.append(
+        ui.createElement('p', { className: 'community-comment-body', text: comment.body }),
+      );
       commentList.append(item);
     });
   }

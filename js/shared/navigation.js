@@ -21,11 +21,13 @@ export function renderNavigation(container, items, createElement) {
       },
     });
 
-    link.append(createElement('span', {
-      className: 'nav-glyph',
-      text: item.glyph,
-      attrs: { 'aria-hidden': 'true' },
-    }));
+    link.append(
+      createElement('span', {
+        className: 'nav-glyph',
+        text: item.glyph,
+        attrs: { 'aria-hidden': 'true' },
+      }),
+    );
     link.append(createElement('span', { className: 'nav-label', text: item.label }));
     return link;
   });
@@ -44,8 +46,8 @@ export function updateActiveNavigation(container, currentPath) {
   const normalisedCurrentPath = normalisePath(currentPath);
   container.querySelectorAll('a.nav-link').forEach((link) => {
     const targetPath = normalisePath((link.getAttribute('href') || '').replace(/^#/, ''));
-    const isActive = normalisedCurrentPath === targetPath
-      || normalisedCurrentPath.startsWith(`${targetPath}/`);
+    const isActive =
+      normalisedCurrentPath === targetPath || normalisedCurrentPath.startsWith(`${targetPath}/`);
 
     if (isActive) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');

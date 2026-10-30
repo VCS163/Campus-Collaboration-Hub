@@ -41,7 +41,8 @@ function getCommunityStats(communityId) {
 }
 
 function getCommunities() {
-  return storage.get('communities')
+  return storage
+    .get('communities')
     .filter(isActiveCommunity)
     .map((community) => ({ ...community, ...getCommunityStats(community.id) }))
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -56,7 +57,8 @@ function getCommunity(communityId) {
 function getCommunityPosts(communityId) {
   const community = getCommunity(communityId);
   if (!community) return [];
-  return storage.query('posts', (post) => post.communityId === communityId)
+  return storage
+    .query('posts', (post) => post.communityId === communityId)
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
     .map((post) => enrichPost(post));
 }
@@ -75,11 +77,15 @@ function enrichPost(post) {
 }
 
 function getLatestPosts(limit = 5) {
-  return storage.get('posts')
+  return storage
+    .get('posts')
     .filter((post) => isActiveCommunity(storage.getById('communities', post.communityId)))
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
     .slice(0, Math.max(0, Number(limit) || 0))
-    .map((post) => ({ ...enrichPost(post), community: storage.getById('communities', post.communityId) }));
+    .map((post) => ({
+      ...enrichPost(post),
+      community: storage.getById('communities', post.communityId),
+    }));
 }
 
 function getPostDetails(postId) {
@@ -87,11 +93,16 @@ function getPostDetails(postId) {
   if (!post) return null;
   const community = getCommunity(post.communityId);
   if (!community) return null;
-  const comments = storage.query('comments', (comment) => comment.postId === postId)
+  const comments = storage
+    .query('comments', (comment) => comment.postId === postId)
     .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''))
     .map((comment) => {
       const author = storage.getById('students', comment.authorId);
-      return { ...comment, authorName: author?.displayName || 'Unknown student', authorBranch: author?.branch || '' };
+      return {
+        ...comment,
+        authorName: author?.displayName || 'Unknown student',
+        authorBranch: author?.branch || '',
+      };
     });
   return {
     post: enrichPost(post),
@@ -103,10 +114,14 @@ function getPostDetails(postId) {
 
 function createPost(authorId, details) {
   const author = storage.getById('students', authorId);
-  if (!author) return result(false, 'invalid-author', { message: 'Select a valid demo student before posting.' });
+  if (!author)
+    return result(false, 'invalid-author', {
+      message: 'Select a valid demo student before posting.',
+    });
 
   const community = getCommunity(details?.communityId);
-  if (!community) return result(false, 'community-not-found', { message: 'This community is unavailable.' });
+  if (!community)
+    return result(false, 'community-not-found', { message: 'This community is unavailable.' });
 
   const type = cleanString(details?.type);
   if (!COMMUNITY_POST_TYPES.some((item) => item.value === type)) {
@@ -116,10 +131,14 @@ function createPost(authorId, details) {
   const title = cleanString(details?.title);
   const body = cleanString(details?.body);
   if (title.length < POST_TITLE_MIN || title.length > POST_TITLE_MAX) {
-    return result(false, 'invalid-title', { message: `Title must be between ${POST_TITLE_MIN} and ${POST_TITLE_MAX} characters.` });
+    return result(false, 'invalid-title', {
+      message: `Title must be between ${POST_TITLE_MIN} and ${POST_TITLE_MAX} characters.`,
+    });
   }
   if (body.length < POST_BODY_MIN || body.length > POST_BODY_MAX) {
-    return result(false, 'invalid-body', { message: `Post content must be between ${POST_BODY_MIN} and ${POST_BODY_MAX} characters.` });
+    return result(false, 'invalid-body', {
+      message: `Post content must be between ${POST_BODY_MIN} and ${POST_BODY_MAX} characters.`,
+    });
   }
 
   const post = storage.insert('posts', {
@@ -134,7 +153,10 @@ function createPost(authorId, details) {
 
 function addComment({ postId, authorId, body }) {
   const author = storage.getById('students', authorId);
-  if (!author) return result(false, 'invalid-author', { message: 'Select a valid demo student before commenting.' });
+  if (!author)
+    return result(false, 'invalid-author', {
+      message: 'Select a valid demo student before commenting.',
+    });
 
   const post = storage.getById('posts', postId);
   if (!post || !getCommunity(post.communityId)) {
@@ -143,7 +165,9 @@ function addComment({ postId, authorId, body }) {
 
   const content = cleanString(body);
   if (content.length < COMMENT_MIN || content.length > COMMENT_MAX) {
-    return result(false, 'invalid-body', { message: `Comment must contain ${COMMENT_MIN}–${COMMENT_MAX} characters.` });
+    return result(false, 'invalid-body', {
+      message: `Comment must contain ${COMMENT_MIN}–${COMMENT_MAX} characters.`,
+    });
   }
 
   const comment = storage.insert('comments', { postId, authorId, body: content });
@@ -152,7 +176,10 @@ function addComment({ postId, authorId, body }) {
 
 function toggleLike({ postId, studentId }) {
   const student = storage.getById('students', studentId);
-  if (!student) return result(false, 'invalid-student', { message: 'Select a valid demo student before reacting.' });
+  if (!student)
+    return result(false, 'invalid-student', {
+      message: 'Select a valid demo student before reacting.',
+    });
 
   const post = storage.getById('posts', postId);
   if (!post || !getCommunity(post.communityId)) {
@@ -164,21 +191,33 @@ function toggleLike({ postId, studentId }) {
     return result(false, 'self-reaction', { message: 'You cannot like your own post.' });
   }
 
-  const existing = storage.query('reactions', (reaction) =>
-    reaction.postId === postId && reaction.studentId === studentId,
+  const existing = storage.query(
+    'reactions',
+    (reaction) => reaction.postId === postId && reaction.studentId === studentId,
   );
 
   if (existing.length) {
     existing.forEach((reaction) => storage.remove('reactions', reaction.id));
-    return result(true, 'unliked', { liked: false, reactionCount: storage.query('reactions', (reaction) => reaction.postId === postId).length });
+    return result(true, 'unliked', {
+      liked: false,
+      reactionCount: storage.query('reactions', (reaction) => reaction.postId === postId).length,
+    });
   }
 
   storage.insert('reactions', { postId, studentId, reactionType: 'like' });
-  return result(true, 'liked', { liked: true, reactionCount: storage.query('reactions', (reaction) => reaction.postId === postId).length });
+  return result(true, 'liked', {
+    liked: true,
+    reactionCount: storage.query('reactions', (reaction) => reaction.postId === postId).length,
+  });
 }
 
 function hasLiked(postId, studentId) {
-  return storage.query('reactions', (reaction) => reaction.postId === postId && reaction.studentId === studentId).length > 0;
+  return (
+    storage.query(
+      'reactions',
+      (reaction) => reaction.postId === postId && reaction.studentId === studentId,
+    ).length > 0
+  );
 }
 
 export const communityService = Object.freeze({

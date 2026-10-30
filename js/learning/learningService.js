@@ -12,21 +12,29 @@ function cleanString(value) {
 }
 
 function getOfferAcceptedCount(offerId) {
-  return storage.query('mentorshipRequests', (request) =>
-    request.offerId === offerId && request.status === 'accepted',
+  return storage.query(
+    'mentorshipRequests',
+    (request) => request.offerId === offerId && request.status === 'accepted',
   ).length;
 }
 
 function getOfferRequests(offerId) {
-  return storage.query('mentorshipRequests', (request) => request.offerId === offerId)
+  return storage
+    .query('mentorshipRequests', (request) => request.offerId === offerId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 function getGroupForRequest(request) {
   if (request.groupId) return storage.getById('learningGroups', request.groupId);
-  return storage.query('learningGroups', (group) =>
-    group.mentorId === request.mentorId && group.learnerIds.includes(request.learnerId),
-  ).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] || null;
+  return (
+    storage
+      .query(
+        'learningGroups',
+        (group) =>
+          group.mentorId === request.mentorId && group.learnerIds.includes(request.learnerId),
+      )
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] || null
+  );
 }
 
 function createMentorOffer(mentorId, details) {
@@ -48,7 +56,8 @@ function createMentorOffer(mentorId, details) {
   }
 
   const description = cleanString(details.description);
-  if (description.length < 10 || description.length > 1000) return result(false, 'invalid-description');
+  if (description.length < 10 || description.length > 1000)
+    return result(false, 'invalid-description');
 
   const availability = cleanString(details.availability);
   if (availability.length > 120) return result(false, 'invalid-availability');
@@ -122,8 +131,12 @@ function createMentorshipRequest({ learnerId, offerId, message = '' }) {
   const acceptedCount = getOfferAcceptedCount(offerId);
   if (acceptedCount >= offer.maxLearners) return result(false, 'capacity-reached');
 
-  const duplicate = storage.query('mentorshipRequests', (request) =>
-    request.offerId === offerId && request.learnerId === learnerId && ['pending', 'accepted'].includes(request.status),
+  const duplicate = storage.query(
+    'mentorshipRequests',
+    (request) =>
+      request.offerId === offerId &&
+      request.learnerId === learnerId &&
+      ['pending', 'accepted'].includes(request.status),
   )[0];
   if (duplicate) return result(false, 'duplicate', { request: duplicate });
 
@@ -141,9 +154,12 @@ function createMentorshipRequest({ learnerId, offerId, message = '' }) {
 }
 
 function findReusableGroup(offer) {
-  const acceptedRequests = storage.query('mentorshipRequests', (request) =>
-    request.offerId === offer.id && request.status === 'accepted',
-  ).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  const acceptedRequests = storage
+    .query(
+      'mentorshipRequests',
+      (request) => request.offerId === offer.id && request.status === 'accepted',
+    )
+    .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
 
   for (const acceptedRequest of acceptedRequests) {
     let group = acceptedRequest.groupId
@@ -154,11 +170,16 @@ function findReusableGroup(offer) {
     // the existing active group from its mentor/learner membership instead of
     // silently creating a second group when users upgrade the project folder.
     if (!group) {
-      group = storage.query('learningGroups', (candidate) =>
-        candidate.mentorId === acceptedRequest.mentorId &&
-        candidate.learnerIds.includes(acceptedRequest.learnerId) &&
-        candidate.status === 'active',
-      ).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))[0] || null;
+      group =
+        storage
+          .query(
+            'learningGroups',
+            (candidate) =>
+              candidate.mentorId === acceptedRequest.mentorId &&
+              candidate.learnerIds.includes(acceptedRequest.learnerId) &&
+              candidate.status === 'active',
+          )
+          .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))[0] || null;
 
       if (group && !acceptedRequest.groupId) {
         storage.update('mentorshipRequests', acceptedRequest.id, { groupId: group.id });
@@ -211,7 +232,10 @@ function reviewMentorshipRequest({ requestId, reviewerId, decision }) {
       insertedGroup = true;
     }
 
-    const updatedRequest = storage.update('mentorshipRequests', requestId, { status: 'accepted', groupId: group.id });
+    const updatedRequest = storage.update('mentorshipRequests', requestId, {
+      status: 'accepted',
+      groupId: group.id,
+    });
     if (!updatedRequest) throw new Error('Could not update the mentorship request.');
     return result(true, null, { request: updatedRequest, group });
   } catch (error) {
@@ -228,10 +252,13 @@ function getGroupParticipants(groupId) {
   const group = storage.getById('learningGroups', groupId);
   if (!group) return [];
   const ids = [...new Set([group.mentorId, ...group.learnerIds])];
-  return ids.map((id) => storage.getById('students', id)).filter(Boolean).map((student) => ({
-    ...student,
-    groupRole: student.id === group.mentorId ? 'Mentor' : 'Learner',
-  }));
+  return ids
+    .map((id) => storage.getById('students', id))
+    .filter(Boolean)
+    .map((student) => ({
+      ...student,
+      groupRole: student.id === group.mentorId ? 'Mentor' : 'Learner',
+    }));
 }
 
 function addLearningMilestone({ groupId, actorId, title }) {
@@ -262,7 +289,9 @@ function toggleLearningMilestone({ groupId, milestoneId, actorId }) {
   const milestone = storage.getById('learningMilestones', milestoneId);
   if (!milestone || milestone.groupId !== groupId) return result(false, 'milestone-not-found');
 
-  const updated = storage.update('learningMilestones', milestoneId, { completed: !milestone.completed });
+  const updated = storage.update('learningMilestones', milestoneId, {
+    completed: !milestone.completed,
+  });
   if (!updated) return result(false, 'update-failed');
   return result(true, null, { milestone: updated });
 }

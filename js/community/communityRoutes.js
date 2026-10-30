@@ -6,7 +6,9 @@ import { renderCommunityPostDetail } from './communityPostDetail.js';
 
 export function registerCommunityRoutes() {
   router.register('/community', () => renderCommunityList());
-  router.register('/community/:communityId/new', ({ communityId }) => renderCommunityPostForm(communityId));
+  router.register('/community/:communityId/new', ({ communityId }) =>
+    renderCommunityPostForm(communityId),
+  );
   router.register('/community/posts/:id', ({ id }) => renderCommunityPostDetail(id));
   router.register('/community/:id', ({ id }) => renderCommunityFeed(id));
 }

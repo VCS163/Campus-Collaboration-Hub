@@ -1,6 +1,14 @@
 function createElement(tagName, options = {}) {
   const element = document.createElement(tagName);
-  const { className, class: classValue, id, text, attrs = {}, children = [], events = {} } = options;
+  const {
+    className,
+    class: classValue,
+    id,
+    text,
+    attrs = {},
+    children = [],
+    events = {},
+  } = options;
 
   if (className || classValue) element.className = className || classValue;
   if (id) element.id = id;
@@ -14,7 +22,8 @@ function createElement(tagName, options = {}) {
 
   for (const child of Array.isArray(children) ? children : [children]) {
     if (child instanceof Node) element.append(child);
-    else if (child !== null && child !== undefined) element.append(document.createTextNode(String(child)));
+    else if (child !== null && child !== undefined)
+      element.append(document.createTextNode(String(child)));
   }
 
   for (const [eventName, handler] of Object.entries(events)) {
@@ -32,7 +41,14 @@ function createBadge(text, variant = 'neutral') {
   return createElement('span', { className: `badge badge-${variant}`, text });
 }
 
-function createButton({ text, type = 'button', variant = 'secondary', onClick, disabled = false, className = '' }) {
+function createButton({
+  text,
+  type = 'button',
+  variant = 'secondary',
+  onClick,
+  disabled = false,
+  className = '',
+}) {
   return createElement('button', {
     className: `btn btn-${variant}${className ? ` ${className}` : ''}`,
     text,
@@ -41,7 +57,14 @@ function createButton({ text, type = 'button', variant = 'secondary', onClick, d
   });
 }
 
-function createCard({ title, subtitle = '', badges = [], body = null, actions = [], className = '' }) {
+function createCard({
+  title,
+  subtitle = '',
+  badges = [],
+  body = null,
+  actions = [],
+  className = '',
+}) {
   const card = createElement('article', { className: `card${className ? ` ${className}` : ''}` });
   const header = createElement('div', { className: 'card-header' });
   header.append(createElement('h3', { className: 'card-title', text: title }));
@@ -49,7 +72,9 @@ function createCard({ title, subtitle = '', badges = [], body = null, actions = 
 
   if (badges.length) {
     const badgeRow = createElement('div', { className: 'tag-list' });
-    badges.forEach((badge) => badgeRow.append(createBadge(badge.text ?? badge, badge.variant ?? 'neutral')));
+    badges.forEach((badge) =>
+      badgeRow.append(createBadge(badge.text ?? badge, badge.variant ?? 'neutral')),
+    );
     header.append(badgeRow);
   }
   card.append(header);
@@ -69,19 +94,37 @@ function createCard({ title, subtitle = '', badges = [], body = null, actions = 
   return card;
 }
 
-function createFormGroup({ label, type = 'text', name, value = '', placeholder = '', required = false, hint = '' }) {
+function createFormGroup({
+  label,
+  type = 'text',
+  name,
+  value = '',
+  placeholder = '',
+  required = false,
+  hint = '',
+}) {
   const wrapper = createElement('div', { className: 'form-group' });
   const inputId = `field-${name}`;
   wrapper.append(createElement('label', { text: label, attrs: { for: inputId } }));
 
-  const input = type === 'textarea'
-    ? createElement('textarea', { id: inputId, attrs: { name, placeholder, required: required ? true : null } })
-    : createElement(type === 'select' ? 'select' : 'input', {
-      id: inputId,
-      attrs: { name, type: type === 'select' ? null : type, placeholder, required: required ? true : null },
-    });
+  const input =
+    type === 'textarea'
+      ? createElement('textarea', {
+          id: inputId,
+          attrs: { name, placeholder, required: required ? true : null },
+        })
+      : createElement(type === 'select' ? 'select' : 'input', {
+          id: inputId,
+          attrs: {
+            name,
+            type: type === 'select' ? null : type,
+            placeholder,
+            required: required ? true : null,
+          },
+        });
 
-  if (input instanceof HTMLTextAreaElement || input instanceof HTMLInputElement) input.value = value;
+  if (input instanceof HTMLTextAreaElement || input instanceof HTMLInputElement)
+    input.value = value;
   wrapper.append(input);
   if (hint) wrapper.append(createElement('span', { className: 'form-hint', text: hint }));
   return wrapper;
@@ -93,7 +136,11 @@ function showEmpty(container, message, actionLabel = '', actionHash = '') {
   empty.append(createElement('h3', { text: 'Nothing here yet' }));
   empty.append(createElement('p', { text: message }));
   if (actionLabel && actionHash) {
-    const link = createElement('a', { className: 'btn btn-primary', text: actionLabel, attrs: { href: actionHash } });
+    const link = createElement('a', {
+      className: 'btn btn-primary',
+      text: actionLabel,
+      attrs: { href: actionHash },
+    });
     empty.append(link);
   }
   container.append(empty);
@@ -125,11 +172,26 @@ function showToast(message, type = 'info', duration = 3200) {
 }
 
 function createModal({ title, body, actions = [], onClose }) {
-  const overlay = createElement('div', { className: 'modal-overlay', attrs: { role: 'presentation' } });
-  const dialog = createElement('section', { className: 'modal', attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-label': title } });
+  const overlay = createElement('div', {
+    className: 'modal-overlay',
+    attrs: { role: 'presentation' },
+  });
+  const dialog = createElement('section', {
+    className: 'modal',
+    attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
+  });
   const heading = createElement('div', { className: 'modal-header' });
   heading.append(createElement('h2', { text: title }));
-  heading.append(createButton({ text: 'Close', variant: 'quiet', onClick: () => { overlay.remove(); onClose?.(); } }));
+  heading.append(
+    createButton({
+      text: 'Close',
+      variant: 'quiet',
+      onClick: () => {
+        overlay.remove();
+        onClose?.();
+      },
+    }),
+  );
   dialog.append(heading);
   const content = createElement('div', { className: 'modal-body' });
   if (body instanceof Node) content.append(body);

@@ -6,12 +6,24 @@ import { seed } from '../js/shared/seed.js';
 function createStorageMock() {
   const store = new Map();
   return {
-    getItem(key) { return store.has(key) ? store.get(key) : null; },
-    setItem(key, value) { store.set(key, String(value)); },
-    removeItem(key) { store.delete(key); },
-    clear() { store.clear(); },
-    key(index) { return Array.from(store.keys())[index] ?? null; },
-    get length() { return store.size; },
+    getItem(key) {
+      return store.has(key) ? store.get(key) : null;
+    },
+    setItem(key, value) {
+      store.set(key, String(value));
+    },
+    removeItem(key) {
+      store.delete(key);
+    },
+    clear() {
+      store.clear();
+    },
+    key(index) {
+      return Array.from(store.keys())[index] ?? null;
+    },
+    get length() {
+      return store.size;
+    },
   };
 }
 
@@ -20,7 +32,10 @@ test('user can sign in with a seeded student account', async () => {
   seed.initialise();
   auth.initialise();
 
-  const result = await auth.login({ email: 'arjun.sharma@campus.example', password: 'Campus2026!' });
+  const result = await auth.login({
+    email: 'arjun.sharma@campus.example',
+    password: 'Campus2026!',
+  });
 
   assert.equal(result.ok, true);
   assert.equal(auth.getCurrentUserId(), 'student_arjun_sharma');
@@ -32,7 +47,10 @@ test('wrong password is rejected and leaves the user signed out', async () => {
   seed.initialise();
   auth.initialise();
 
-  const result = await auth.login({ email: 'priya.nair@campus.example', password: 'wrong-password' });
+  const result = await auth.login({
+    email: 'priya.nair@campus.example',
+    password: 'wrong-password',
+  });
 
   assert.equal(result.ok, false);
   assert.equal(auth.isAuthenticated(), false);

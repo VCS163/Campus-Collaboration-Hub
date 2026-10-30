@@ -4,6 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "lint": "eslint . --ext .js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:coverage": "c8 --check-coverage --lines 80 --functions 80 --branches 75 node --test",
+    "deploy:check": "find js -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "ci": "npm run lint && npm run format:check && npm run test:coverage && npm run deploy:check"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "c8": "^10.1.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.0"
   }
 }
