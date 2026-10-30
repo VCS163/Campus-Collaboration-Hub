@@ -25,12 +25,109 @@ const navItems = [
 ];
 
 function renderPrimaryNavigation() {
+  if (!navContainer) return;
   renderNavigation(navContainer, navItems, ui.createElement);
   updateActiveNavigation(navContainer, router.currentPath());
 }
 
 function syncActiveNavigation() {
+  if (!navContainer) return;
   updateActiveNavigation(navContainer, router.currentPath());
+}
+
+function syncAuthHeaderState() {
+  const authButton = document.querySelector('#auth-action');
+  const selector = document.querySelector('#demo-user-select');
+  const currentUser = auth.getCurrentUser();
+
+  if (authButton) {
+    authButton.textContent = currentUser ? 'Sign out' : 'Sign in';
+    authButton.setAttribute('aria-label', currentUser ? 'Sign out' : 'Sign in');
+  }
+
+  if (selector) {
+    const students = auth.getStudents();
+    selector.replaceChildren();
+    if (!students.length) {
+      selector.disabled = true;
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = 'No accounts';
+      selector.append(option);
+      return;
+    }
+
+    students.forEach((student) => {
+      const option = document.createElement('option');
+      option.value = student.id;
+      option.textContent = `${student.displayName} · ${student.branch}`;
+      selector.append(option);
+    });
+
+    selector.value = currentUser ? currentUser.id : '';
+    selector.disabled = !auth.isAuthenticated();
+  }
+}
+
+function renderLoginPage() {
+  const page = ui.createElement('div', { className: 'page-stack' });
+  const card = ui.createElement('section', { className: 'card auth-card' });
+  const heading = ui.createElement('div', { className: 'page-heading-copy' });
+  heading.append(ui.createElement('div', { className: 'eyebrow', text: 'AUTHENTICATED ACCESS' }));
+  heading.append(ui.createElement('h1', { text: 'Sign in to Campus Collaboration Hub' }));
+  heading.append(ui.createElement('p', { text: 'Use your student account to manage clubs, projects, learning, and community activity.' }));
+  card.append(heading);
+
+  const form = document.createElement('form');
+  form.className = 'auth-form';
+
+  const emailField = ui.createElement('label', { className: 'form-group', text: 'Campus email' });
+  const emailInput = ui.createElement('input', {
+    attrs: {
+      type: 'email',
+      name: 'email',
+      placeholder: 'arjun.sharma@campus.example',
+      autocomplete: 'email',
+      required: true,
+    },
+  });
+  emailField.append(emailInput);
+
+  const passwordField = ui.createElement('label', { className: 'form-group', text: 'Password' });
+  const passwordInput = ui.createElement('input', {
+    attrs: {
+      type: 'password',
+      name: 'password',
+      placeholder: 'Enter your password',
+      autocomplete: 'current-password',
+      required: true,
+    },
+  });
+  passwordField.append(passwordInput);
+
+  const submitButton = ui.createButton({ text: 'Sign in', variant: 'primary', type: 'submit' });
+  const demoHint = ui.createElement('p', { className: 'form-hint', text: 'Demo seed accounts use the password Campus2026!.' });
+  const errorText = ui.createElement('p', { className: 'auth-error', attrs: { role: 'alert' } });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const result = await auth.login({ email, password });
+    errorText.textContent = result.message || '';
+    if (!result.ok) {
+      errorText.style.display = 'block';
+      return;
+    }
+    ui.showToast(result.message, 'success');
+    router.navigate('/clubs');
+  });
+
+  form.append(emailField, passwordField, submitButton, demoHint, errorText);
+  card.append(form);
+  page.append(card);
+  appContent.replaceChildren(page);
+  syncActiveNavigation();
 }
 
 function renderProfile() {
@@ -40,13 +137,13 @@ function renderProfile() {
   const copy = ui.createElement('div', { className: 'page-heading-copy' });
   copy.append(ui.createElement('div', { className: 'eyebrow', text: 'SHARED STUDENT IDENTITY' }));
   copy.append(ui.createElement('h1', { text: 'Your profile' }));
-  copy.append(ui.createElement('p', { text: 'The same student identity is referenced by Clubs, Projects, Learning and Community.' }));
+  copy.append(ui.createElement('p', { text: 'The same authenticated student identity is referenced by Clubs, Projects, Learning and Community.' }));
   heading.append(copy);
   heading.append(ui.createButton({ text: 'Edit profile', variant: 'primary', onClick: () => router.navigate('/profile/edit') }));
   page.append(heading);
 
   if (!user) {
-    ui.showEmpty(page, 'No demo student is available. Reset the demo data to restore the seed profiles.');
+    ui.showEmpty(page, 'Sign in to view your authenticated student profile.');
     appContent.replaceChildren(page);
     return;
   }
@@ -72,8 +169,8 @@ function renderProfile() {
   const note = ui.createElement('section', { className: 'notice' });
   note.append(ui.createElement('span', { className: 'notice-mark', text: 'i' }));
   const noteCopy = ui.createElement('div');
-  noteCopy.append(ui.createElement('strong', { text: 'Demo identity, not authentication' }));
-  noteCopy.append(ui.createElement('p', { text: 'Use the demo-user selector in the header to preview the application as another student. This prototype does not create accounts or protect private data.' }));
+  noteCopy.append(ui.createElement('strong', { text: 'Authenticated student session' }));
+  noteCopy.append(ui.createElement('p', { text: 'Your active session is stored for this browser and remains scoped to the signed-in student account.' }));
   note.append(noteCopy);
   page.append(note);
 
@@ -90,9 +187,21 @@ function renderFatalError(error) {
 }
 
 function attachGlobalHandlers() {
+  document.querySelector('#auth-action')?.addEventListener('click', () => {
+    if (auth.isAuthenticated()) {
+      auth.logout();
+      ui.showToast('You have been signed out.', 'success');
+      router.navigate('/login');
+      return;
+    }
+    router.navigate('/login');
+  });
+
   document.querySelector('#demo-user-select')?.addEventListener('change', (event) => {
-    const switched = auth.switchUser(event.target.value);
-    if (switched) ui.showToast(`Viewing as ${auth.getCurrentUser().displayName}.`, 'success');
+    const selectedStudentId = event.target.value;
+    if (!selectedStudentId) return;
+    const switched = auth.switchUser(selectedStudentId);
+    if (switched) ui.showToast(`Signed in as ${auth.getCurrentUser().displayName}.`, 'success');
   });
 
   resetButton?.addEventListener('click', () => {
@@ -100,8 +209,9 @@ function attachGlobalHandlers() {
     if (!confirmed) return;
     try {
       storage.resetDemoData();
+      auth.logout();
       auth.initialise();
-      router.dispatch();
+      router.navigate('/login');
       ui.showToast('Demo data has been restored.', 'success');
     } catch (error) {
       ui.showToast(error.message || 'Could not reset demo data.', 'error');
@@ -109,10 +219,10 @@ function attachGlobalHandlers() {
   });
 }
 
-function initialiseApplication() {
+async function initialiseApplication() {
   try {
     seed.initialise();
-    auth.initialise();
+    await auth.initialise();
     renderPrimaryNavigation();
 
     registerClubRoutes();
@@ -120,13 +230,23 @@ function initialiseApplication() {
     registerLearningRoutes();
     registerProfileRoutes();
     registerCommunityRoutes();
+    router.register('/login', renderLoginPage);
     router.register('/profile', renderProfile);
 
-    window.addEventListener('cch:navigated', syncActiveNavigation);
+    window.addEventListener('cch:navigated', () => {
+      syncAuthHeaderState();
+      syncActiveNavigation();
+      if (!auth.isAuthenticated() && router.currentPath() !== '/login') {
+        router.navigate('/login');
+      }
+    });
+
     router.start();
     attachGlobalHandlers();
+    syncAuthHeaderState();
 
     auth.onUserChange(() => {
+      syncAuthHeaderState();
       router.dispatch();
     });
 
@@ -134,9 +254,12 @@ function initialiseApplication() {
       auth.initialise();
     });
 
-    // Read-only QA surface for the course prototype; no framework or build tools required.
     globalThis.CCH = Object.freeze({ storage, auth, validation, validators, events, router });
     console.info('Campus Collaboration Hub foundation ready. Use CCH in DevTools for smoke tests.');
+
+    if (!auth.isAuthenticated()) {
+      router.navigate('/login');
+    }
   } catch (error) {
     console.error('Campus Collaboration Hub failed to initialise:', error);
     renderFatalError(error);
