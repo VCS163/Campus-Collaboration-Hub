@@ -105,6 +105,39 @@ test('initialisation refuses duplicate student emails and clears any stale sessi
   assert.equal(auth.getStudentByEmail('arjun.sharma@campus.example'), null);
 });
 
+test('switching users is blocked when a duplicate email would make the identity ambiguous', async () => {
+  globalThis.localStorage = createStorageMock();
+  seed.initialise();
+  await auth.initialise();
+
+  const first = auth.getStudentByEmail('arjun.sharma@campus.example');
+  assert.ok(first);
+
+  const duplicate = {
+    ...first,
+    id: 'student_duplicate_arjun',
+    displayName: 'Arjun Duplicate',
+    email: 'arjun.sharma@campus.example',
+    passwordSalt: 'duplicate-arjun-salt',
+    passwordHash: await auth.derivePasswordHash('Campus2026!', 'duplicate-arjun-salt'),
+    year: 2,
+    branch: 'CSE',
+    bio: 'Duplicate account that should never become an active session.',
+    skillsKnown: ['JavaScript'],
+    skillsLearning: ['TypeScript'],
+    interests: [],
+    availabilityHours: 3,
+    profileImage: '',
+    updatedAt: new Date().toISOString(),
+  };
+
+  globalThis.localStorage.setItem('cch_students', JSON.stringify([first, duplicate]));
+  const switched = auth.switchUser(first.id);
+
+  assert.equal(switched, false);
+  assert.equal(auth.getCurrentUserId(), null);
+});
+
 test('duplicate student emails are rejected to prevent ambiguous account access', async () => {
   globalThis.localStorage = createStorageMock();
   seed.initialise();

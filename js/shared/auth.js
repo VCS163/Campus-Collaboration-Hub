@@ -242,6 +242,16 @@ function logout() {
 function switchUser(studentId) {
   const student = storage.getById('students', studentId);
   if (!student) return false;
+
+  const duplicateEmails = getDuplicateStudentEmails();
+  if (duplicateEmails.size > 0) {
+    if (typeof globalThis.localStorage !== 'undefined') {
+      globalThis.localStorage.removeItem(CURRENT_USER_KEY);
+    }
+    renderSwitcher();
+    return false;
+  }
+
   return setAuthenticatedUser(studentId);
 }
 
