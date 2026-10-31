@@ -68,3 +68,42 @@ test('logout clears the active authenticated session', async () => {
   assert.equal(auth.isAuthenticated(), false);
   assert.equal(auth.getCurrentUserId(), null);
 });
+
+test('duplicate student emails are rejected to prevent ambiguous account access', async () => {
+  globalThis.localStorage = createStorageMock();
+  seed.initialise();
+  auth.initialise();
+
+  const first = auth.getStudentByEmail('arjun.sharma@campus.example');
+  assert.ok(first);
+
+  const duplicate = {
+    id: 'student_duplicate_arjun',
+    displayName: 'Arjun Duplicate',
+    email: 'arjun.sharma@campus.example',
+    passwordSalt: 'duplicate-arjun-salt',
+    passwordHash: await auth.derivePasswordHash('Campus2026!', 'duplicate-arjun-salt'),
+    year: 2,
+    branch: 'CSE',
+    bio: 'Duplicate account that should never be able to log in.',
+    skillsKnown: ['JavaScript'],
+    skillsLearning: ['TypeScript'],
+    interests: [],
+    availabilityHours: 3,
+    profileImage: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const studentStore = globalThis.localStorage;
+  studentStore.setItem('cch_students', JSON.stringify([first, duplicate]));
+
+  const result = await auth.login({
+    email: 'arjun.sharma@campus.example',
+    password: 'Campus2026!',
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, 'duplicate_student_email');
+  assert.equal(auth.isAuthenticated(), false);
+});

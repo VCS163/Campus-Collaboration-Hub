@@ -160,10 +160,20 @@ async function login({ email, password }) {
     };
   }
 
-  const student = getStudents().find((candidate) => {
+  const matchingStudents = getStudents().filter((candidate) => {
     const candidateEmail = normaliseEmail(candidate.email || buildStudentEmail(candidate));
     return candidateEmail === trimmedEmail;
   });
+
+  if (matchingStudents.length > 1) {
+    return {
+      ok: false,
+      reason: 'duplicate_student_email',
+      message: 'Multiple student accounts share this campus email. Please contact support.',
+    };
+  }
+
+  const student = matchingStudents[0];
   if (!student) {
     return {
       ok: false,
@@ -215,11 +225,15 @@ function onUserChange(callback) {
 
 function getStudentByEmail(email) {
   const targetEmail = normaliseEmail(email);
-  return (
-    getStudents().find(
-      (student) => normaliseEmail(student.email || buildStudentEmail(student)) === targetEmail,
-    ) ?? null
+  const matches = getStudents().filter(
+    (student) => normaliseEmail(student.email || buildStudentEmail(student)) === targetEmail,
   );
+
+  if (matches.length > 1) {
+    return null;
+  }
+
+  return matches[0] ?? null;
 }
 
 export const auth = Object.freeze({
