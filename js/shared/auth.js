@@ -63,9 +63,32 @@ function buildStudentEmail(student) {
   return `${name || 'student'}@campus.example`;
 }
 
+function getDuplicateStudentEmails(students = getStudents()) {
+  const seenEmails = new Set();
+  const duplicates = new Set();
+
+  for (const student of students) {
+    const email = normaliseEmail(student?.email || buildStudentEmail(student));
+    if (!email) continue;
+
+    if (seenEmails.has(email)) duplicates.add(email);
+    seenEmails.add(email);
+  }
+
+  return duplicates;
+}
+
 async function ensureStudentCredentials() {
   const students = getStudents();
-  if (!students.length) return;
+  if (!students.length) return true;
+
+  const duplicateEmails = getDuplicateStudentEmails(students);
+  if (duplicateEmails.size > 0) {
+    if (typeof globalThis.localStorage !== 'undefined') {
+      globalThis.localStorage.removeItem(CURRENT_USER_KEY);
+    }
+    return false;
+  }
 
   for (const student of students) {
     const email = normaliseEmail(student.email || buildStudentEmail(student));
@@ -80,6 +103,8 @@ async function ensureStudentCredentials() {
       });
     }
   }
+
+  return true;
 }
 
 function setAuthenticatedUser(studentId) {
@@ -136,7 +161,14 @@ async function initialise() {
     return null;
   }
 
-  await ensureStudentCredentials();
+  const hasSafeStudentCredentials = await ensureStudentCredentials();
+  if (!hasSafeStudentCredentials) {
+    if (typeof globalThis.localStorage !== 'undefined') {
+      globalThis.localStorage.removeItem(CURRENT_USER_KEY);
+    }
+    renderSwitcher();
+    return null;
+  }
 
   const savedUserId = getCurrentUserId();
   const userExists = students.some((student) => student.id === savedUserId && student.email);
