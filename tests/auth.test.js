@@ -176,3 +176,12 @@ test('duplicate student emails are rejected to prevent ambiguous account access'
   assert.equal(result.reason, 'duplicate_student_email');
   assert.equal(auth.isAuthenticated(), false);
 });
+
+test('switching users rejects invalid or non-existent student IDs', async () => {
+  globalThis.localStorage = createStorageMock();
+  seed.initialise();
+  await auth.initialise();
+
+  const switched = auth.switchUser('non_existent_student_id');
+  assert.equal(switched, false);
+});
