@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Logs and temporary files
+*.log
+scratch/
+
+# Dependencies/build output (none required for the current vanilla-JS app)
+node_modules/
+dist/
+build/
+
+# Local environment files
+.env
+.env.*
+!.env.example
