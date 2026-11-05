@@ -1,27 +1,16 @@
 import { router } from '../router.js';
-
-function renderPendingFeature(featureName) {
-  const container = document.querySelector('#app-content');
-  if (!container) return;
-
-  const section = document.createElement('section');
-  section.className = 'empty-state';
-
-  const heading = document.createElement('h1');
-  heading.textContent = `${featureName} module is being integrated`;
-
-  const message = document.createElement('p');
-  message.textContent = 'This area will become available after the assigned feature branch is reviewed and merged.';
-
-  section.append(heading, message);
-  container.replaceChildren(section);
-}
+import { renderLearningRequestForm } from './learningRequestForm.js';
+import { renderMentorDetail } from './mentorDetail.js';
+import { renderMentorForm } from './mentorForm.js';
+import { renderMentorList } from './mentorList.js';
+import { renderMentorshipRequestForm } from './mentorshipRequestForm.js';
+import { renderLearningGroup } from './learningGroup.js';
 
 export function registerLearningRoutes() {
-  router.register('/learning', () => renderPendingFeature('Learning & Mentorship'));
-  router.register('/learning/offers/new', () => renderPendingFeature('Mentor offer'));
-  router.register('/learning/requests/new', () => renderPendingFeature('Learning request'));
-  router.register('/learning/offers/:id/request', () => renderPendingFeature('Mentorship request'));
-  router.register('/learning/offers/:id', () => renderPendingFeature('Mentor details'));
-  router.register('/learning/groups/:id', () => renderPendingFeature('Learning group'));
+  router.register('/learning', () => renderMentorList());
+  router.register('/learning/offers/new', () => renderMentorForm());
+  router.register('/learning/requests/new', () => renderLearningRequestForm());
+  router.register('/learning/offers/:id/request', ({ id }) => renderMentorshipRequestForm(id));
+  router.register('/learning/offers/:id', ({ id }) => renderMentorDetail(id));
+  router.register('/learning/groups/:id', ({ id }) => renderLearningGroup(id));
 }
