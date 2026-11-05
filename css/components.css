@@ -3,7 +3,7 @@
   position: sticky;
   z-index: 50;
   top: 0;
-  border-bottom: 1px solid rgb(232 232 241 / 90%);
+  border-bottom: 1px solid rgb(229 222 210 / 92%);
   background: rgb(255 255 255 / 94%);
   backdrop-filter: blur(18px);
 }
@@ -30,8 +30,8 @@
   display: grid;
   place-items: center;
   border-radius: 13px;
-  background: linear-gradient(140deg, #796bf0, #5143c4);
-  box-shadow: 0 7px 15px rgb(101 87 217 / 22%);
+  background: linear-gradient(140deg, #B58D50, #8F672F);
+  box-shadow: 0 7px 15px rgb(166 124 61 / 22%);
   color: #fff;
   font-size: 0.78rem;
   font-weight: 850;
@@ -94,7 +94,7 @@
   display: inline-grid;
   place-items: center;
   border-radius: 6px;
-  background: rgb(101 87 217 / 8%);
+  background: rgb(166 124 61 / 10%);
   font-size: 0.69rem;
   font-weight: 800;
 }
@@ -159,7 +159,7 @@
 .btn-primary {
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 5px 12px rgb(101 87 217 / 17%);
+  box-shadow: 0 5px 12px rgb(166 124 61 / 18%);
 }
 
 .btn-primary:hover {
@@ -256,7 +256,7 @@
 .badge-success, .badge-active { background: var(--color-success-soft); color: var(--color-success); }
 .badge-warning, .badge-pending { background: var(--color-warning-soft); color: var(--color-warning); }
 .badge-danger, .badge-archived { background: var(--color-danger-soft); color: var(--color-danger); }
-.badge-neutral { background: #f0f0f5; color: #64647b; }
+.badge-neutral { background: #F1EEE8; color: #6B645B; }
 
 .metric-card {
   padding: var(--space-5);
@@ -361,10 +361,10 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  border: 1px solid #e5e2ff;
+  border: 1px solid #E7DCC8;
   border-radius: var(--radius-md);
-  background: #f5f3ff;
-  color: #4f48a7;
+  background: #F8F3E9;
+  color: #795B30;
 }
 
 .notice-mark {
@@ -374,7 +374,7 @@
   display: grid;
   place-items: center;
   border-radius: 8px;
-  background: #e7e3ff;
+  background: #F0E4D0;
   font-size: 0.75rem;
   font-weight: 850;
 }
@@ -382,13 +382,13 @@
 .notice strong {
   display: block;
   margin-bottom: 2px;
-  color: #3d378d;
+  color: #684B25;
   font-size: 0.82rem;
 }
 
 .notice p {
   margin-bottom: 0;
-  color: #625eaa;
+  color: #70695F;
   font-size: 0.78rem;
 }
 
